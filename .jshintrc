@@ -1,0 +1,20 @@
+{ "laxcomma": true
+, "laxbreak": true
+, "eqeqeq": true
+, "strict": "global"
+, "curly": false
+, "expr": true
+, "node": true
+, "devel": true
+, "debug": true
+, "esversion": 6
+, "varstmt": true
+, "unused": false
+, "bitwise": true
+, "validthis": true
+, "multistr": true
+, "maxerr": 50
+, "-W002": false
+, "-W004": false
+, "maxlen": 99
+}
