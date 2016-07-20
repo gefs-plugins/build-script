@@ -9,7 +9,7 @@
 , "debug": true
 , "esversion": 6
 , "varstmt": true
-, "unused": false
+, "unused": "strict"
 , "bitwise": true
 , "validthis": true
 , "multistr": true

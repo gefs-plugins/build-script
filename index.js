@@ -6,7 +6,6 @@ const Promise = require('bluebird');
 // jshint +W079
 const fs = Promise.promisifyAll(require('fs'));
 const path = require('path');
-const util = require('util');
 
 const toml = require('toml');
 const rimraf = Promise.promisify(require('rimraf'));
@@ -57,6 +56,9 @@ const requirejsDefaults =
 
 function magic(config) {
   config.requirejs = Object.assign(requirejsDefaults, config.requirejs);
+
+  // Ensure a `require([ 'name' ])` call is inserted if needed.
+  if (config.mainHasDefine) config.requirejs.insertRequire = [ config.requirejs.name ];
 
   const optimizing = new Promise(function (resolve, reject) {
     console.log(`Building ${config.name}: ${argv.debug ? 'debug' : 'release'} mode`);
@@ -179,6 +181,11 @@ a.require=require;a.requirejs=requirejs;a.define=define`;
       if (licenseComment) {
         licenseComment = '// ' + licenseComment.split(/\r?\n|\r/).join('\n// ') + '\n\n';
       }
+      licenseComment += `\n
+/*!
+ * @license almond 0.3.2 Copyright jQuery Foundation and other contributors.
+ * Released under MIT license, http://github.com/requirejs/almond/LICENSE
+ */`;
 
       const userscript = `// ==UserScript==
 ${metadata}
@@ -215,7 +222,7 @@ ${licenseComment}${minified}`;
 
       // Ensure the 'package' directory exists -- if not, create it.
       mkdirp('package');
-      zip.outputStream.pipe(fs.createWriteStream(util.format(`package/${extension}.zip`, extension)));
+      zip.outputStream.pipe(fs.createWriteStream(`package/${extension}.zip`, extension));
     });
   });
 }

@@ -15,10 +15,13 @@ directory.  Defaults (commented out) and possible options are shown below:
 
     # The name to use for descriptions.
     name = "Example Extension"
+
     # The variable name through which the extension is accessible.
     globalVariableName = "example_ext"
+
     # The prefix given to the zip file package.
     shortName = "example"
+
     # A file called "[name].crx" will be created inside the package.
     crxName = "gefs_example_setup"
 
@@ -27,6 +30,9 @@ directory.  Defaults (commented out) and possible options are shown below:
     Copyright (c) Karl Cheng 2016
     Licensed under the GNU General Public Licence, version 3 or later.
     See the LICENSE file for details."""
+
+    # Will insert a require() call for the main module if this is true.
+    # mainHasDefine = false
 
     [requirejs]
     # The folder containing the modules for the extension. (default)
@@ -37,6 +43,15 @@ directory.  Defaults (commented out) and possible options are shown below:
 Once you have created the file, run the build script (in the root directory of your project):
 
     gefs-build-script --pem YOUR_PEM_FILE.pem [--debug]
+
+Note that there must be a "userscript.js" and a "README.md" file in the `baseUrl` directory.
+
+If you do not already have a PEM file, create one using `openssl`:
+
+    openssl genrsa 2048 | openssl pkcs8 -topk8 -nocrypt -out key.pem
+
+**Warning: for security reasons, the PEM file MUST be kept private.  Do not upload it online,
+commit/push it to GitHub or any other repository, or give it to anyone else.**
 
 How to contribute
 -----------------

@@ -1,9 +1,8 @@
 'use strict';
 
-// jshint esversion:6, node:true
 const yazl = require('yazl');
 const util = require('util');
-const stream = require('stream');
+// const stream = require('stream');
 const crypto = require('crypto');
 
 // jshint -W079
