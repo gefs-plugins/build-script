@@ -19,8 +19,8 @@ function createZip(minified, chromeManifest) {
     jsStringEscape(minified)
   );
 
-  zip.addBuffer(new Buffer(wrapper), 'wrapper.js');
-  zip.addBuffer(new Buffer(JSON.stringify(chromeManifest)), 'manifest.json');
+  zip.addBuffer(Buffer.from(wrapper), 'wrapper.js');
+  zip.addBuffer(Buffer.from(JSON.stringify(chromeManifest)), 'manifest.json');
   zip.end();
   return zip.outputStream;
 }
@@ -55,7 +55,7 @@ exports.create = function (minified, chromeManifest, pem) {
 
   return Promise.join(zipBuffering, gettingSignature, function (buffer, signature) {
     // The Chrome documentation says it's 4-byte aligned, but in reality it isn't.
-    const crx = new Buffer(16 + publicKey.length + signature.length + buffer.length);
+    const crx = Buffer.alloc(16 + publicKey.length + signature.length + buffer.length);
     // Cr24 magic number
     crx.writeUInt32BE(0x43723234, 0);
     // Version of CRX format (2)

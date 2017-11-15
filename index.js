@@ -193,7 +193,7 @@ ${metadata}
 
 ${licenseComment}${minified}`;
 
-      zip.addBuffer(new Buffer(userscript), extension + '.user.js');
+      zip.addBuffer(Buffer.from(userscript), extension + '.user.js');
 
       function customFormat(formatStr) {
         let formattedStr = formatStr;
@@ -209,7 +209,7 @@ ${licenseComment}${minified}`;
         'utf-8'
       ).then(function (file) {
         const html = markdown.toHTML(customFormat(file, version, extension));
-        zip.addBuffer(new Buffer(html), 'README.html');
+        zip.addBuffer(Buffer.from(html), 'README.html');
       });
 
       const license = fs.readFileAsync('LICENSE.md').then(file => zip.addBuffer(file, 'LICENSE'));
