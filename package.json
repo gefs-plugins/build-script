@@ -1,23 +1,23 @@
-{ "name": "gefs-build-script"
-, "version": "0.1.1"
-, "bugs": "https://github.com/gefs-plugins/build-script/issues"
-, "license": "GPL-3.0+"
-, "author": "Karl Cheng <qantas94heavy@gmail.com>"
-, "bin": "./index.js"
-, "repository": "gefs-plugins/build-script"
-, "dependencies":
-  { "uglify-js": "^2.7.0"
-  , "requirejs": "^2.2.0"
-  , "bluebird": "^3.4.1"
-  , "node-rsa": "^0.4.0"
-  , "almond": "^0.3.2"
-  , "yazl": "^2.4.1"
-  , "toml": "^2.3.0"
-  , "markdown": "^0.5.0"
-  , "stream-to-array": "^2.3.0"
-  , "js-string-escape": "^1.0.1"
-  , "mkdirp": "^0.5.1"
-  , "rimraf": "^2.5.3"
-  }
-, "private": true
+{
+  "name": "gefs-build-script",
+  "version": "0.1.1",
+  "bugs": "https://github.com/gefs-plugins/build-script/issues",
+  "license": "GPL-3.0+",
+  "author": "Karl Cheng <qantas94heavy@gmail.com>",
+  "bin": "./index.js",
+  "repository": "gefs-plugins/build-script",
+  "dependencies": {
+    "requirejs": "^2.2.0",
+    "bluebird": "^3.4.1",
+    "node-rsa": "^0.4.0",
+    "almond": "^0.3.2",
+    "yazl": "^2.4.1",
+    "toml": "^2.3.0",
+    "markdown": "^0.5.0",
+    "stream-to-array": "^2.3.0",
+    "js-string-escape": "^1.0.1",
+    "mkdirp": "^0.5.1",
+    "yargs": "^4.8.1"
+  },
+  "private": true
 }

@@ -8,11 +8,9 @@ const fs = Promise.promisifyAll(require('fs'));
 const path = require('path');
 
 const toml = require('toml');
-const rimraf = Promise.promisify(require('rimraf'));
 const mkdirp = Promise.promisify(require('mkdirp'));
 const markdown = require('markdown').markdown;
 const requirejs = require('requirejs');
-const UglifyJS = require('uglify-js');
 const yazl = require('yazl');
 
 const crx = require('./crx.js');
@@ -34,11 +32,6 @@ const argv = require('yargs')
 const INVALID_VERSION_ERR = 'Invalid version in Greasemonkey metadata.  Version must be in the \
 format x.x.x, where x is an integer (0 <= x <= 65535), without leading zeros';
 
-const gettingAlmond = fs.readFileAsync(
-  path.join(__dirname, 'node_modules/almond/almond.js'),
-  'utf-8'
-);
-
 // { name: 'Autopilot++', globalVariableName: "autopilot_pp", shortName: "app"
 // , crxName: "gefs_gc-setup", licenseComment: "Copyright ...", requirejs: {} }
 fs.readFileAsync('gefs-build-config.toml')
@@ -47,53 +40,43 @@ fs.readFileAsync('gefs-build-config.toml')
 
 const requirejsDefaults =
   { baseUrl: 'source'
-  , name: 'main'
-  , out: 'build/code.user.js'
-  // Will be manually minifed using UglifyJS2 further down.
-  , optimize: 'none'
+  , name: 'init'
   , stubModules: [ 'text', 'json' ]
+  , optimize: argv.debug ? 'none' : 'uglify2'
+  , uglify2:
+    { output:
+      { max_line_len: 400
+      , screw_ie8: true
+      }
+    , compress: { global_defs: { DEBUG: false } }
+    }
   };
 
 function magic(config) {
   config.requirejs = Object.assign(requirejsDefaults, config.requirejs);
 
-  // Ensure a `require([ 'name' ])` call is inserted if needed.
-  if (config.mainHasDefine) config.requirejs.insertRequire = [ config.requirejs.name ];
+  // Insert Almond into the built file.  For legacy reasons, 'name' is moved to 'include'.
+  if (config.requirejs.include) config.requirejs.include.push(config.requirejs.name);
+  else config.requirejs.include = [ config.requirejs.name ];
 
-  const optimizing = new Promise(function (resolve, reject) {
+  // Note that here the '.js' extension is necessary.
+  config.requirejs.name = path.join(__dirname, 'node_modules/almond/almond.js');
+
+  const optimizing = new Promise(function (resolve) {
     console.log(`Building ${config.name}: ${argv.debug ? 'debug' : 'release'} mode`);
     console.log('Waiting for RequireJS optimisation to complete...');
-    requirejs.optimize(config.requirejs, resolve, reject);
-  }).catch(function (err) {
-    console.error(err);
-    process.exit(1);
-  }).then(function (buildResponse) {
-    // buildResponse is just a text output of the modules
-    // included. Load the built file for the contents.
-    // Use internalConfig.out to get the optimized file contents.
-    console.log(buildResponse);
-    const gettingContents = fs.readFileAsync(config.requirejs.out, 'utf-8');
 
-    // Remove the build folder once we've read from it.
-    gettingContents.then(() => rimraf('build'));
-    return gettingContents;
-  });
+    // Resolve promise with generated file after completing build.
+    config.requirejs.out = resolve;
 
-  const minifying = Promise.join(optimizing, gettingAlmond, function (contents, loader) {
-    // The RequireJS loader has to come before the contents of the file.
-    contents = loader + '\n' + contents;
+    // Print out information about build instead of leaving it as 'slient'.
+    config.requirejs.logLevel = 1;
 
-    // Disable minification in debug mode.
-    if (argv.debug) return contents;
-
-    return UglifyJS.minify(contents,
-    { fromString: true
-    , output:
-      { max_line_len: 400
-      , screw_ie8: true
-      }
-    , compress: { global_defs: { DEBUG: false } }
-    }).code;
+    // `buildResponse` is just a text output of the modules included.  This is already sent to
+    // logger when logLevel is INFO, so this is not necessary.
+    // The default errback logs the error, then runs `process.exit(1)` -- this is what we want.
+    // `optimize(config, function (buildResponse) {}, errback);`
+    requirejs.optimize(config.requirejs);
   });
 
   const chromeManifest = {
@@ -164,9 +147,10 @@ function magic(config) {
 
     chromeManifest.version = version;
     console.log('Version building: ' + version);
+    // Name of the ZIP file that will be used as a package.
     const extension = `${config.shortName}_v${version}${argv.debug ? '-debug' : ''}`;
 
-    minifying.then(function (minified) {
+    optimizing.then(function (minified) {
       minified += `\nvar a=window.${config.globalVariableName}={};a.version="${version}";\
 a.require=require;a.requirejs=requirejs;a.define=define`;
 
@@ -180,15 +164,11 @@ a.require=require;a.requirejs=requirejs;a.define=define`;
 
       let zip = new yazl.ZipFile();
 
-      let licenseComment = config.licenseComment.trim();
+      // Make sure the string exists before attempting to trim it.
+      let licenseComment = config.licenseComment ? config.licenseComment.trim() : '';
       if (licenseComment) {
         licenseComment = '// ' + licenseComment.split(/\r?\n|\r/).join('\n// ') + '\n\n';
       }
-      licenseComment += `\n
-/*!
- * @license almond 0.3.2 Copyright jQuery Foundation and other contributors.
- * Released under MIT license, http://github.com/requirejs/almond/LICENSE
- */`;
 
       const userscript = `// ==UserScript==
 ${metadata}
