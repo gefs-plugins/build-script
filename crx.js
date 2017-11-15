@@ -19,8 +19,7 @@ function createZip(minified, chromeManifest) {
     jsStringEscape(minified)
   );
 
-
-  zip.addBuffer(new Buffer(wrapper), 'c.js');
+  zip.addBuffer(new Buffer(wrapper), 'wrapper.js');
   zip.addBuffer(new Buffer(JSON.stringify(chromeManifest)), 'manifest.json');
   zip.end();
   return zip.outputStream;

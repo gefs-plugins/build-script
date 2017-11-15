@@ -100,7 +100,7 @@ function magic(config) {
     manifest_version: 2,
     content_scripts: [{
       matches: [],
-      js: [ 'c.js' ]
+      js: [ 'wrapper.js' ]
     }]
   };
 
