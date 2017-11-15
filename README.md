@@ -11,7 +11,8 @@ First, install the the `gefs-build-script` package (in this directory):
     npm install -g .
 
 Make sure your project has a `gefs-build-config.toml` file in the root
-directory.  Defaults (commented out) and possible options are shown below:
+directory.  Possible options are shown below (default options are
+commented out):
 
     # The name to use for descriptions.
     name = "Example Extension"
@@ -31,33 +32,33 @@ directory.  Defaults (commented out) and possible options are shown below:
     Licensed under the GNU General Public Licence, version 3 or later.
     See the LICENSE file for details."""
 
-    # Will insert a require() call for the main module if this is true.
-    # mainHasDefine = false
-
     [requirejs]
     # The folder containing the modules for the extension. (default)
     # baseUrl = "source"
     # The module name of the main file, relative to baseUrl. (default)
-    # name = "main"
+    # name = "init"
 
-Once you have created the file, run the build script (in the root directory of your project):
+Once you have created the file, run the build script (in the root
+directory of your project):
 
     gefs-build-script --pem YOUR_PEM_FILE.pem [--debug]
 
-Note that there must be a "userscript.js" and a "README.md" file in the `baseUrl` directory.
+Note that there must be a "userscript.js" and a "README.md" file in the
+`baseUrl` directory.
 
 If you do not already have a PEM file, create one using `openssl`:
 
     openssl genrsa 2048 | openssl pkcs8 -topk8 -nocrypt -out key.pem
 
-**Warning: for security reasons, the PEM file MUST be kept private.  Do not upload it online,
-commit/push it to GitHub or any other repository, or give it to anyone else.**
+**Warning: for security reasons, the PEM file MUST be kept private.  Do
+not upload it online, commit/push it to GitHub or any other repository,
+or give it to anyone else.**
 
 How to contribute
 -----------------
 
-If you'd like to contribute to this project, follow the instructions given
-in the file `CONTRIBUTING.md`.
+If you'd like to contribute to this project, follow the instructions
+given in the file `CONTRIBUTING.md`.
 
 License
 -------
