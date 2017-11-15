@@ -208,11 +208,14 @@ ${licenseComment}${minified}`;
         .then(pem => crx.create(minified, chromeManifest, pem))
         .then(buffer => zip.addBuffer(buffer, `${config.crxName}.crx`, { compress: false }));
 
+      // Create the ZIP file once everything has been added to it.
       Promise.join(readme, license, creatingCrx, () => zip.end());
 
       // Ensure the 'package' directory exists -- if not, create it.
       mkdirp('package');
-      zip.outputStream.pipe(fs.createWriteStream(`package/${extension}.zip`, extension));
+
+      // Write the ZIP file to the output folder.
+      zip.outputStream.pipe(fs.createWriteStream(`package/${extension}.zip`));
     });
   });
 }
