@@ -117,12 +117,14 @@ function magic(config) {
       file.indexOf('// ==/UserScript==')
     );
 
+    // Parse directives in metadata block.
     const directives = [];
     for (let line of greasemonkey.split('\n')) {
       const match = line.match(/\/\/ @(\S+)(?:\s+(.*))?/);
       if (match) directives.push(match.slice(1));
     }
 
+    // Process directives that have been parsed.
     for (let keyValue of directives) {
       const key = keyValue[0];
       const value = keyValue[1];
@@ -133,7 +135,8 @@ function magic(config) {
       } else if (key === 'match') {
         chromeManifest.content_scripts[0].matches.push(value);
       } else if (key === 'run-at') {
-        chromeManifest.content_scripts[0]['run-at'] = value;
+        // Chrome uses underscores instead of hyphens.
+        chromeManifest.content_scripts[0]['run_at'] = value.replace('-', '_');
       }
       // elif key == 'namespace' or key == 'grant': pass
       else chromeManifest[key] = value;
