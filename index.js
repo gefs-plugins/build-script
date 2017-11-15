@@ -198,21 +198,28 @@ ${licenseComment}${minified}`;
       function customFormat(formatStr) {
         let formattedStr = formatStr;
         for (let i = 1; i < arguments.length; ++i) {
-          formattedStr = formattedStr.replace('{' + (i - 1) + '}', arguments[i]);
+          formattedStr = formattedStr.replace(
+            new RegExp('\\{' + (i - 1) + '\\}', 'g'),
+            arguments[i]
+          );
         }
 
         return formattedStr;
       }
 
+      // Convert README and LICENSE files from Markdown to HTML.
       const readme = fs.readFileAsync(
         path.join(config.requirejs.baseUrl, 'README.md'),
         'utf-8'
       ).then(function (file) {
-        const html = markdown.toHTML(customFormat(file, version, extension));
+        const html = markdown.toHTML(customFormat(file, version, extension, config.crxName));
         zip.addBuffer(Buffer.from(html), 'README.html');
       });
 
-      const license = fs.readFileAsync('LICENSE.md').then(file => zip.addBuffer(file, 'LICENSE'));
+      const license = fs.readFileAsync('LICENSE.md', 'utf-8').then(function (file) {
+        const html = markdown.toHTML(file);
+        zip.addBuffer(Buffer.from(html), 'LICENSE.html');
+      });
 
       const creatingCrx = fs.readFileAsync(argv.pem)
         .then(pem => crx.create(minified, chromeManifest, pem))
