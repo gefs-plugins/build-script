@@ -84,7 +84,8 @@ function magic(config) {
     content_scripts: [{
       matches: [],
       js: [ 'wrapper.js' ]
-    }]
+    }],
+    web_accessible_resources: [ 'minified.js' ]
   };
 
   fs.readFileAsync(

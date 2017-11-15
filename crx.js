@@ -2,7 +2,7 @@
 
 const yazl = require('yazl');
 const util = require('util');
-// const stream = require('stream');
+const fs = require('fs');
 const crypto = require('crypto');
 
 // jshint -W079
@@ -12,16 +12,18 @@ const NodeRSA = require('node-rsa');
 const streamToArray = require('stream-to-array');
 const jsStringEscape = require('js-string-escape');
 
+const gettingWrapper = fs.readFileAsync(__dirname + '/wrapper.js');
+
 function createZip(minified, chromeManifest) {
   let zip = new yazl.ZipFile();
-  const wrapper = util.format(
-    "var d=document;top==this&&(d.head.appendChild(d.createElement('script')).text='%s')",
-    jsStringEscape(minified)
-  );
 
-  zip.addBuffer(Buffer.from(wrapper), 'wrapper.js');
+  zip.addBuffer(Buffer.from(minified), 'minified.js');
+  gettingWrapper.then(function (wrapperBuf) {
+    zip.addBuffer(wrapperBuf, 'wrapper.js');
+    zip.end();
+  });
+
   zip.addBuffer(Buffer.from(JSON.stringify(chromeManifest)), 'manifest.json');
-  zip.end();
   return zip.outputStream;
 }
 
