@@ -14,10 +14,17 @@ const jsStringEscape = require('js-string-escape');
 
 const gettingWrapper = fs.readFileAsync(__dirname + '/wrapper.js');
 
-function createZip(minified, chromeManifest) {
+function createZip(code, chromeManifest) {
   let zip = new yazl.ZipFile();
 
-  zip.addBuffer(Buffer.from(minified), 'minified.js');
+  // We have to wrap the JS code in an IIFE because we directly inject
+  // the script into the global page in the Chrome extension, while
+  // Greasemonkey wraps any userscripts in its own context.
+  code = `!function(){
+${code}
+}()`;
+
+  zip.addBuffer(Buffer.from(code), 'code.js');
   gettingWrapper.then(function (wrapperBuf) {
     zip.addBuffer(wrapperBuf, 'wrapper.js');
     zip.end();
@@ -47,8 +54,8 @@ function getSignature(stream, pem) {
   });
 }
 
-exports.create = function (minified, chromeManifest, pem) {
-  const zipStream = createZip(minified, chromeManifest);
+exports.create = function (code, chromeManifest, pem) {
+  const zipStream = createZip(code, chromeManifest);
   const gettingSignature = getSignature(zipStream, pem);
   const zipBuffering = streamToArray(zipStream).then(arr => Buffer.concat(arr));
 
