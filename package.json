@@ -1,6 +1,6 @@
 {
   "name": "gefs-build-script",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "bugs": "https://github.com/gefs-plugins/build-script/issues",
   "license": "GPL-3.0+",
   "author": "Karl Cheng <qantas94heavy@gmail.com>",
