@@ -1,7 +1,7 @@
-GEFS Build Script
+GeoFS Build Script
 =================
 
-This is the build script for all of the GEFS extensions.
+This is the build script for all of the GeoFS extensions.
 
 How to use
 ----------
