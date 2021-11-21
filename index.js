@@ -1,14 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
-// jshint -W079
-const Promise = require('bluebird');
-// jshint +W079
-const fs = Promise.promisifyAll(require('fs'));
+const fs = require('fs').promises;
 const path = require('path');
 
 const toml = require('toml');
-const mkdirp = Promise.promisify(require('mkdirp'));
+const mkdirp = require('mkdirp');
 const markdown = require('markdown').markdown;
 const requirejs = require('requirejs');
 const yazl = require('yazl');
@@ -210,7 +207,8 @@ ${licenseComment}${minified}`;
         .then(buffer => zip.addBuffer(buffer, `${config.crxName}.crx`, { compress: false }));
 
       // Create the ZIP file once everything has been added to it.
-      Promise.join(readme, license, creatingCrx, () => zip.end());
+      Promise.all([readme, license, creatingCrx])
+        .then(() => zip.end());
 
       // Ensure the 'package' directory exists -- if not, create it.
       mkdirp('package');

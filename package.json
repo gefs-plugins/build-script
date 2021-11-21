@@ -8,7 +8,6 @@
   "repository": "gefs-plugins/build-script",
   "dependencies": {
     "almond": "^0.3.2",
-    "bluebird": "^3.4.1",
     "js-string-escape": "^1.0.1",
     "markdown": "^0.5.0",
     "mkdirp": "^1.0.4",
