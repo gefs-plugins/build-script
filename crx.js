@@ -5,14 +5,13 @@ const util = require('util');
 const fs = require('fs');
 const crypto = require('crypto');
 
-// jshint -W079
-const Promise = require('bluebird');
-// jshint +W079
 const NodeRSA = require('node-rsa');
 const streamToArray = require('stream-to-array');
 const jsStringEscape = require('js-string-escape');
 
-const gettingWrapper = fs.readFileAsync(__dirname + '/wrapper.js');
+const crx3 = require('crx3');
+
+const gettingWrapper = fs.promises.readFile(__dirname + '/wrapper.js');
 
 function createZip(code, chromeManifest) {
   let zip = new yazl.ZipFile();
@@ -54,6 +53,14 @@ function getSignature(stream, pem) {
   });
 }
 
+exports.createCrx3 = function (code, chromeManifest, pem, crx) {
+    const zipStream = createZip(code, chromeManifest);
+    return crx3(zipStream, {
+        keyPath: pem,
+        crxPath: crx
+    });
+}
+
 exports.create = function (code, chromeManifest, pem) {
   const zipStream = createZip(code, chromeManifest);
   const gettingSignature = getSignature(zipStream, pem);
@@ -62,7 +69,7 @@ exports.create = function (code, chromeManifest, pem) {
   const key = new NodeRSA(pem);
   const publicKey = key.exportKey('pkcs8-public-der');
 
-  return Promise.join(zipBuffering, gettingSignature, function (buffer, signature) {
+  return Promise.all([zipBuffering, gettingSignature]).then(([buffer, signature]) => {
     // The Chrome documentation says it's 4-byte aligned, but in reality it isn't.
     const crx = Buffer.alloc(16 + publicKey.length + signature.length + buffer.length);
     // Cr24 magic number
